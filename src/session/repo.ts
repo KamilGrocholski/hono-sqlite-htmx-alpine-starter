@@ -27,6 +27,9 @@ export class SessionRepoSqlite implements SessionRepo {
       .query("SELECT * FROM session WHERE id = ?")
       .as(Session)
       .get(id);
+    if (session) {
+      session.expiresAt = new Date(session.expiresAt);
+    }
     return session;
   }
 

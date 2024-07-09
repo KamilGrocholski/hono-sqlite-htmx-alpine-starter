@@ -8,8 +8,10 @@ import { JwtService, jwtMiddleware } from "@/jwt";
 import {
   InternalServerErrorPage,
   LandingPage,
+  NotFoundPage,
   UnauthenticatedPage,
   UnauthorizedPage,
+  PanelPage,
 } from "@/shared";
 
 const db = connectDB();
@@ -31,6 +33,8 @@ const authService = new AuthService(
 const app = new Hono();
 app.use(jwtMiddleware(jwtService));
 
+app.notFound(async (c) => c.html(<NotFoundPage />));
+
 app.get("/", async (c) => {
   return c.html(<LandingPage />);
 });
@@ -51,6 +55,7 @@ app.route("", authApp(authService));
 
 const panelApp = new Hono();
 panelApp.use(authMiddleware(authService));
+panelApp.get("/", (c) => c.html(<PanelPage />));
 
 app.route("/panel", panelApp);
 

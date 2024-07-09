@@ -110,6 +110,6 @@ describe("Auth middlewares", async () => {
         Cookie: `jwt=${token}`,
       },
     });
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(302);
   });
 });

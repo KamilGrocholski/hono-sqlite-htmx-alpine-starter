@@ -61,6 +61,10 @@ export class AuthService {
     return user.role === role;
   }
 
+  async logout(sessionId: Session["id"]): Promise<void> {
+    await this.sessionRepo.deleteById(sessionId);
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return await Bun.password.hash(password);
   }

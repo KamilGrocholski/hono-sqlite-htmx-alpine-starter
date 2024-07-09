@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { setCookie } from "hono/cookie";
+import { deleteCookie, setCookie } from "hono/cookie";
 
 import { zValidator } from "@hono/zod-validator";
 
@@ -21,6 +21,19 @@ export function authApp(authService: AuthService) {
   app.get("/register", (c) => c.html(<RegisterPage />));
 
   app.get("/login", (c) => c.html(<LoginPage />));
+
+  app.delete("/logout", async (c) => {
+    try {
+      const jwtPayload = c.get("jwtPayload");
+      if (!jwtPayload) return;
+      await authService.logout(jwtPayload.sessionId);
+      c.res.headers.set("HX-Location", "/");
+      deleteCookie(c, AUTH_JWT_COOKIE_NAME);
+      return c.html("ok");
+    } catch (err) {
+      // TODO
+    }
+  });
 
   app.post(
     "/register",
@@ -46,7 +59,7 @@ export function authApp(authService: AuthService) {
       try {
         await authService.registerUser(formValues.email, formValues.password);
         c.res.headers.set("HX-Redirect", "/login");
-        return c.res;
+        return c.html("ok");
       } catch (err) {
         if (!PublicError.is(err)) {
           return c.html(
@@ -94,7 +107,7 @@ export function authApp(authService: AuthService) {
         );
         setCookie(c, AUTH_JWT_COOKIE_NAME, token);
         c.res.headers.set("HX-Redirect", "/panel");
-        return c.res;
+        return c.html("ok");
       } catch (err) {
         if (!PublicError.is(err)) {
           return c.html(
