@@ -1,6 +1,7 @@
 import { MiddlewareHandler } from "hono";
 
 import { AuthService } from "./service";
+import { UserRole } from "@/user";
 
 export function authMiddleware(authService: AuthService): MiddlewareHandler {
   return async function (c, next) {
@@ -15,9 +16,27 @@ export function authMiddleware(authService: AuthService): MiddlewareHandler {
       if (!isSessionValid) {
         return c.redirect("/login");
       }
+      return await next();
     } catch (err) {
-      return c.redirect("/login");
+      return c.redirect("/500");
     }
-    return await next();
+  };
+}
+
+export function adminMiddleware(authService: AuthService): MiddlewareHandler {
+  return async function (c, next) {
+    try {
+      const jwtPayload = c.get("jwtPayload");
+      const isAdmin = await authService.verifyRole(
+        jwtPayload.userId,
+        UserRole.Admin,
+      );
+      if (!isAdmin) {
+        return c.redirect("/403");
+      }
+      return await next();
+    } catch (err) {
+      return c.redirect("/500");
+    }
   };
 }

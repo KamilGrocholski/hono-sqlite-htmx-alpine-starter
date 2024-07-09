@@ -7,7 +7,12 @@ import { AUTH_JWT_COOKIE_NAME } from "@/jwt";
 import { PublicError } from "@/shared";
 import { AuthService } from "./service";
 import { LoginForm, LoginPage, RegisterForm, RegisterPage } from "./views";
-import { LoginSchemaErrors, loginSchema, registerSchema } from "./types";
+import {
+  LoginSchemaErrors,
+  RegisterSchemaErrors,
+  loginSchema,
+  registerSchema,
+} from "./types";
 import { AuthPublicError } from "./errors";
 
 export function authApp(authService: AuthService) {
@@ -21,31 +26,43 @@ export function authApp(authService: AuthService) {
     "/register",
     zValidator("form", registerSchema, (result, c) => {
       if (!result.success) {
-        return c.html(<RegisterForm formValues={result.data} />);
+        const errors: RegisterSchemaErrors = result.error.format();
+        return c.html(
+          <RegisterForm
+            formValues={result.data}
+            formErrors={{
+              email: errors.email?._errors[0],
+              password: errors.password?._errors[0],
+              confirmPassword: errors.confirmPassword?._errors[0],
+              areTermsOfServiceAccepted:
+                errors.areTermsOfServiceAccepted?._errors[0],
+            }}
+          />,
+        );
       }
     }),
     async (c) => {
       const formValues = c.req.valid("form");
       try {
-        await authService.register(formValues.email, formValues.password);
-        return c.redirect("/login");
+        await authService.registerUser(formValues.email, formValues.password);
+        c.res.headers.set("HX-Redirect", "/login");
+        return c.res;
       } catch (err) {
-        if (AuthPublicError.isExact(err, AuthPublicError.EmailTaken)) {
+        if (!PublicError.is(err)) {
           return c.html(
             <RegisterPage
               formValues={formValues}
-              formErrors={{ email: err.message }}
+              globalError={PublicError.SomethingWentWrong.message}
             />,
           );
         }
         return c.html(
           <RegisterPage
             formValues={formValues}
-            globalError={
-              PublicError.is(err)
-                ? err.message
-                : PublicError.SomethingWentWrong.message
-            }
+            formErrors={{
+              email: AuthPublicError.EmailTaken.check(err)?.message,
+            }}
+            globalError={PublicError.isExact(err) ? err.message : undefined}
           />,
         );
       }
@@ -76,32 +93,25 @@ export function authApp(authService: AuthService) {
           formValues.password,
         );
         setCookie(c, AUTH_JWT_COOKIE_NAME, token);
-        return c.redirect("/app");
+        c.res.headers.set("HX-Redirect", "/panel");
+        return c.res;
       } catch (err) {
-        if (AuthPublicError.isExact(err, AuthPublicError.PasswordInvalid)) {
+        if (!PublicError.is(err)) {
           return c.html(
             <LoginForm
               formValues={formValues}
-              formErrors={{ password: err.message }}
-            />,
-          );
-        }
-        if (AuthPublicError.isExact(err, AuthPublicError.EmailDoesNotExist)) {
-          return c.html(
-            <LoginForm
-              formValues={formValues}
-              formErrors={{ email: err.message }}
+              globalError={PublicError.SomethingWentWrong.message}
             />,
           );
         }
         return c.html(
           <LoginForm
             formValues={formValues}
-            globalError={
-              PublicError.is(err)
-                ? err.message
-                : PublicError.SomethingWentWrong.message
-            }
+            formErrors={{
+              email: AuthPublicError.EmailDoesNotExist.check(err)?.message,
+              password: AuthPublicError.PasswordInvalid.check(err)?.message,
+            }}
+            globalError={PublicError.isExact(err) ? err.message : undefined}
           />,
         );
       }

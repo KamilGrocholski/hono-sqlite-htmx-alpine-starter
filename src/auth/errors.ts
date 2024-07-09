@@ -1,6 +1,7 @@
 import { PublicError } from "@/shared";
 
 export class AuthPublicError extends PublicError {
+  static UserNotFound = new AuthPublicError("User not found");
   static EmailTaken = new AuthPublicError("Email is already taken");
   static EmailDoesNotExist = new AuthPublicError(
     "User with such e-mail does not exist",
@@ -11,11 +12,11 @@ export class AuthPublicError extends PublicError {
     super(message, options);
   }
 
-  static is(err: unknown): err is AuthPublicError {
-    return err instanceof AuthPublicError;
+  static isExact(err: unknown): err is AuthPublicError {
+    return Object.getPrototypeOf(err) === AuthPublicError.prototype;
   }
 
-  static isExact<T extends AuthPublicError>(err: unknown, exact: T): err is T {
-    return err === exact;
+  check(err: unknown): AuthPublicError | undefined {
+    return AuthPublicError.is(err) && err === this ? this : undefined;
   }
 }

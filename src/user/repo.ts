@@ -1,9 +1,9 @@
 import { Database } from "bun:sqlite";
 
-import { User } from "./types";
+import { User, UserRole } from "./types";
 
 export interface UserRepo {
-  create(email: string, password: string): Promise<void>;
+  create(email: string, password: string, role: UserRole): Promise<void>;
   findById(id: User["id"]): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
 }
@@ -11,10 +11,11 @@ export interface UserRepo {
 export class UserRepoSqlite implements UserRepo {
   constructor(private db: Database) {}
 
-  async create(email: string, password: string): Promise<void> {
-    this.db.exec("INSERT INTO user (email, password) VALUES (?, ?)", [
+  async create(email: string, password: string, role: UserRole): Promise<void> {
+    this.db.exec("INSERT INTO user (email, password, role) VALUES (?, ?, ?)", [
       email,
       password,
+      role,
     ]);
   }
 
@@ -41,11 +42,12 @@ export class UserRepoInMemory implements UserRepo {
     private memory: Map<User["id"], User>,
   ) {}
 
-  async create(email: string, password: string): Promise<void> {
+  async create(email: string, password: string, role: UserRole): Promise<void> {
     const user: User = {
       id: this.generateId(),
       email,
       password,
+      role,
     };
     this.memory.set(user.id, user);
   }

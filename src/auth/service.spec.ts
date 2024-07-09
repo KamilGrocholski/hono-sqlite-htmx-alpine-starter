@@ -33,7 +33,7 @@ describe("Auth service", async () => {
   test("register, login and verify session", async () => {
     const email = "email@gmail.com";
     const password = "password";
-    await authService.register(email, password);
+    await authService.registerUser(email, password);
     const token = await authService.login(email, password);
     const payload = await jwtService.verify(token);
     const isSessionValid = await authService.verifySession(payload.sessionId);

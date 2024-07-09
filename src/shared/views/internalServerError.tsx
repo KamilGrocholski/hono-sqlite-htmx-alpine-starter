@@ -1,9 +1,9 @@
 import { Document } from "./document";
 
-export function LandingPage() {
+export function InternalServerErrorPage() {
   return (
     <Document>
-      <div>Langing page</div>
+      <div>500 InternalServerError</div>
     </Document>
   );
 }

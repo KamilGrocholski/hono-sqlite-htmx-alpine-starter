@@ -1,9 +1,9 @@
 import { Document } from "./document";
 
-export function LandingPage() {
+export function UnauthenticatedPage() {
   return (
     <Document>
-      <div>Langing page</div>
+      <div>401 Unauthenticated</div>
     </Document>
   );
 }

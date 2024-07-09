@@ -1,12 +1,16 @@
 import { Hono } from "hono";
 
-import { LandingPage } from "@/shared";
-import { authApp } from "@/auth/app";
 import { connectDB } from "@/db";
 import { UserRepoSqlite } from "@/user";
 import { SessionRepoSqlite } from "@/session";
-import { AuthService, authMiddleware } from "@/auth";
+import { AuthService, authMiddleware, authApp } from "@/auth";
 import { JwtService, jwtMiddleware } from "@/jwt";
+import {
+  InternalServerErrorPage,
+  LandingPage,
+  UnauthenticatedPage,
+  UnauthorizedPage,
+} from "@/shared";
 
 const db = connectDB();
 
@@ -31,7 +35,19 @@ app.get("/", async (c) => {
   return c.html(<LandingPage />);
 });
 
-app.route("/", authApp(authService));
+app.get("/401", async (c) => {
+  return c.html(<UnauthenticatedPage />);
+});
+
+app.get("/403", async (c) => {
+  return c.html(<UnauthorizedPage />);
+});
+
+app.get("/500", async (c) => {
+  return c.html(<InternalServerErrorPage />);
+});
+
+app.route("", authApp(authService));
 
 const panelApp = new Hono();
 panelApp.use(authMiddleware(authService));

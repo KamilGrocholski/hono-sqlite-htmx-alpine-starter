@@ -3,7 +3,7 @@ import { getCookie } from "hono/cookie";
 
 import { JwtService } from "./service";
 
-export const AUTH_JWT_COOKIE_NAME = "jwt" as const
+export const AUTH_JWT_COOKIE_NAME = "jwt" as const;
 
 export function jwtMiddleware(jwtService: JwtService): MiddlewareHandler {
   return async function (c, next) {

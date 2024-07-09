@@ -1,6 +1,6 @@
 import { JwtService } from "@/jwt";
 import { Session, SessionRepo } from "@/session";
-import { UserRepo } from "@/user";
+import { User, UserRepo, UserRole } from "@/user";
 import { AuthPublicError } from "./errors";
 
 export class AuthService {
@@ -11,12 +11,16 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string): Promise<void> {
+  async registerUser(email: string, password: string): Promise<void> {
     const user = await this.userRepo.findByEmail(email);
     if (user) {
       throw AuthPublicError.EmailTaken;
     }
-    await this.userRepo.create(email, await this.hashPassword(password));
+    await this.userRepo.create(
+      email,
+      await this.hashPassword(password),
+      UserRole.User,
+    );
   }
 
   async login(email: string, password: string): Promise<string> {
@@ -47,6 +51,14 @@ export class AuthService {
     const session = await this.sessionRepo.findById(sessionId);
     if (!session) return false;
     return session.expiresAt > now;
+  }
+
+  async verifyRole(userId: User["id"], role: UserRole): Promise<boolean> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw AuthPublicError.UserNotFound;
+    }
+    return user.role === role;
   }
 
   private async hashPassword(password: string): Promise<string> {
