@@ -1,0 +1,10 @@
+# deps
+node_modules/
+
+# env
+.env
+
+# sqlite
+*.sqlite
+*.db
+*.database
