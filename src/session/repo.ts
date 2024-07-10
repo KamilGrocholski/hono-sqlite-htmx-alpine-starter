@@ -7,6 +7,7 @@ export interface SessionRepo {
   create(userId: User["id"], expiresAt: Date): Promise<Session>;
   findById(id: Session["id"]): Promise<Session | null>;
   deleteById(id: Session["id"]): Promise<void>;
+  deleteByUserId(userId: User["id"]): Promise<void>;
 }
 
 export class SessionRepoSqlite implements SessionRepo {
@@ -36,6 +37,10 @@ export class SessionRepoSqlite implements SessionRepo {
   async deleteById(id: Session["id"]): Promise<void> {
     this.db.exec("DELETE FROM session WHERE id = ?", [id]);
   }
+
+  async deleteByUserId(userId: number): Promise<void> {
+    this.db.exec("DELETE FROM session WHERE userId = ?", [userId]);
+  }
 }
 
 export class SessionRepoInMemory implements SessionRepo {
@@ -56,5 +61,13 @@ export class SessionRepoInMemory implements SessionRepo {
 
   async deleteById(id: Session["id"]): Promise<void> {
     this.memory.delete(id);
+  }
+
+  async deleteByUserId(userId: User["id"]): Promise<void> {
+    for (const s of this.memory.values()) {
+      if (s.userId === userId) {
+        this.memory.delete(s.id);
+      }
+    }
   }
 }

@@ -35,6 +35,19 @@ export function authApp(authService: AuthService, jwtService: JwtService) {
     }
   });
 
+  authApp.delete("/logout-total", async (c) => {
+    try {
+      const jwtPayload = c.get("jwtPayload");
+      if (!jwtPayload) return;
+      await authService.logoutFromAllUserSessions(jwtPayload.userId);
+      c.res.headers.set("HX-Location", "/");
+      jwtService.deleteCookie(c);
+      return c.html("ok");
+    } catch (err) {
+      // TODO
+    }
+  });
+
   authApp.post(
     "/register",
     zValidator("form", registerSchema, (result, c) => {
