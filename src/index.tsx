@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { secureHeaders } from "hono/secure-headers";
 import { logger } from "hono/logger";
 import { serveStatic } from "hono/bun";
 
@@ -39,11 +40,16 @@ if (env.NODE_ENV === "development") {
   app.use(logger());
 }
 
+app.use("*", secureHeaders());
+
 app.use(jwtMiddleware(jwtService));
 
 app.notFound(async (c) => c.html(<NotFoundPage />));
 
-app.use("/public/*", serveStatic({ root: "./" }));
+app.use("/public/*", async (c, next) => {
+  c.res.headers.set("Cache-Control", "public,max-age=31536000,immutable");
+  return await serveStatic({ root: "./" })(c, next);
+});
 
 app.get("/", async (c) => {
   return c.html(<LandingPage />);

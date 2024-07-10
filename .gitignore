@@ -2,6 +2,9 @@
 dist/
 build/
 
+# built css
+public/global.css
+
 # deps
 node_modules/
 
