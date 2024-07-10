@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { logger } from "hono/logger";
+import { serveStatic } from "hono/bun";
 
 import { connectDB } from "@/db";
-import { UserRepoSqlite } from "@/user";
+import { UserRepoSqlite, UserService } from "@/user";
 import { SessionRepoSqlite } from "@/session";
 import { AuthService, authMiddleware, authApp, adminMiddleware } from "@/auth";
 import { JwtService, jwtMiddleware } from "@/jwt";
@@ -23,6 +24,7 @@ const db = connectDB();
 const userRepo = new UserRepoSqlite(db);
 const sessionRepo = new SessionRepoSqlite(db);
 
+const userService = new UserService(userRepo);
 const jwtService = new JwtService("jwt", env.JWT_EXP_MINUTES, env.JWT_SECRET);
 export const authService = new AuthService(
   () => new Date(Date.now() + 1000 * 60 * env.SESSION_EXP_TIME_MINUTES),
@@ -40,6 +42,8 @@ if (env.NODE_ENV === "development") {
 app.use(jwtMiddleware(jwtService));
 
 app.notFound(async (c) => c.html(<NotFoundPage />));
+
+app.use("/public/*", serveStatic({ root: "./" }));
 
 app.get("/", async (c) => {
   return c.html(<LandingPage />);
@@ -61,12 +65,26 @@ app.route("", authApp(authService, jwtService));
 
 const panelApp = new Hono<AppContext>();
 panelApp.use(authMiddleware(authService));
-panelApp.get("/", (c) => c.html(<PanelPage />));
+panelApp.get("/", async (c) => {
+  const { userId } = c.get("jwtPayload");
+  const user = await userService.findById(userId);
+  return c.html(
+    <PanelPage user={{ email: user?.email || "", role: user?.role || "" }} />,
+  );
+});
 app.route("/panel", panelApp);
 
 const adminApp = new Hono<AppContext>();
 adminApp.use(authMiddleware(authService), adminMiddleware(authService));
-adminApp.get("/", (c) => c.html(<AdminPanelPage />));
+adminApp.get("/", async (c) => {
+  const { userId } = c.get("jwtPayload");
+  const user = await userService.findById(userId);
+  return c.html(
+    <AdminPanelPage
+      user={{ email: user?.email || "", role: user?.role || "" }}
+    />,
+  );
+});
 app.route("/admin", adminApp);
 
 export default app;

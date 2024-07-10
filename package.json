@@ -1,17 +1,25 @@
 {
   "name": "htmx-hono-sqlite-starter",
   "scripts": {
-    "dev": "bun run --hot src/index.tsx",
+    "tw": "bunx tailwindcss -i ./src/input.css -o ./public/global.css",
+    "dev": "concurrently \"bun --hot src/index.tsx\" \"bun run tw --watch\"",
+    "start": "bun run build && bun ./dist/index.js",
+    "build": "bun run tw --minify && bun build src/index.tsx --outdir=./dist --target=bun --minify",
     "db:migrate": "bun run src/db/migrate.ts",
     "db:seed": "bun run src/db/seed.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",
+    "alpinejs": "^3.14.1",
     "hono": "^4.4.12",
+    "htmx.org": "^1.9.12",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "concurrently": "^8.2.2",
+    "daisyui": "^4.12.10",
+    "tailwindcss": "^3.4.4",
     "typed-htmx": "^0.3.1"
   }
 }

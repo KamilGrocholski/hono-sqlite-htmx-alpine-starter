@@ -1,4 +1,4 @@
-export function Navbar() {
+export function Navbar({ user }: { user: { email: string; role: string } }) {
   return (
     <div class="navbar bg-base-200">
       <div class="container mx-auto">
@@ -25,6 +25,13 @@ export function Navbar() {
               tabIndex={0}
               class="menu menu-sm dropdown-content bg-base-300 rounded-box z-[1] mt-3 w-52 p-2 shadow"
             >
+              <div>
+                <div class="flex flex-col items-center text-center">
+                  <div>{user.email}</div>
+                  <div>{user.role}</div>
+                </div>
+              </div>
+              <div class="divider"></div>
               <li>
                 <a href="/profile" class="btn btn-ghost btn-sm">
                   Profile

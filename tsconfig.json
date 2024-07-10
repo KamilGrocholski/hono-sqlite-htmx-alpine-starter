@@ -8,6 +8,12 @@
         },
         "strict": true,
         "jsx": "react-jsx",
-        "jsxImportSource": "hono/jsx"
+        "jsxImportSource": "hono/jsx",
+        "skipLibCheck": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "downlevelIteration": true
     }
 }
