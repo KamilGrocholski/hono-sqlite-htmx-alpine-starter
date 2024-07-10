@@ -4,7 +4,7 @@ import { sign, verify } from "hono/jwt";
 
 import { User } from "@/user";
 import { Session } from "@/session";
-import { AppContext } from "@/shared";
+import { AppContext } from "@/types";
 
 export type JwtPayload = {
   userId: User["id"];

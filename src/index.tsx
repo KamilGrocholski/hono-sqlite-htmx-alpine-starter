@@ -14,9 +14,9 @@ import {
   UnauthorizedPage,
   PanelPage,
   AdminPanelPage,
-  AppContext,
 } from "@/shared";
 import { env } from "@/env";
+import { AppContext } from "@/types";
 
 const db = connectDB();
 

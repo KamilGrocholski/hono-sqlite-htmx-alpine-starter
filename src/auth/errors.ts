@@ -1,4 +1,4 @@
-import { PublicError } from "@/shared";
+import { PublicError } from "@/errors";
 
 export class AuthPublicError extends PublicError {
   static UserNotFound = new AuthPublicError("User not found");

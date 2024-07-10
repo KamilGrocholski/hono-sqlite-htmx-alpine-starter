@@ -1,8 +1,8 @@
 import { MiddlewareHandler } from "hono";
 
 import { UserRole } from "@/user";
+import { AppContext } from "@/types";
 import { AuthService } from "./service";
-import { AppContext } from "@/shared";
 
 export function authMiddleware(authService: AuthService): MiddlewareHandler {
   return async function (c, next) {

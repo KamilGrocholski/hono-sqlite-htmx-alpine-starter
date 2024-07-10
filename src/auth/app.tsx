@@ -3,7 +3,8 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 
 import { JwtService } from "@/jwt";
-import { AppContext, PublicError } from "@/shared";
+import { PublicError } from "@/errors";
+import { AppContext } from "@/types";
 import { AuthService } from "./service";
 import { LoginForm, LoginPage, RegisterForm, RegisterPage } from "./views";
 import {
