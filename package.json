@@ -2,7 +2,8 @@
   "name": "htmx-hono-sqlite-starter",
   "scripts": {
     "dev": "bun run --hot src/index.tsx",
-    "db:migrate": "bun run src/db/migrate.ts"
+    "db:migrate": "bun run src/db/migrate.ts",
+    "db:seed": "bun run src/db/seed.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",

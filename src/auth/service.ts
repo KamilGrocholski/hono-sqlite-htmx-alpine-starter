@@ -23,6 +23,18 @@ export class AuthService {
     );
   }
 
+  async registerAdmin(email: string, password: string): Promise<void> {
+    const user = await this.userRepo.findByEmail(email);
+    if (user) {
+      throw AuthPublicError.EmailTaken;
+    }
+    await this.userRepo.create(
+      email,
+      await this.hashPassword(password),
+      UserRole.Admin,
+    );
+  }
+
   async login(email: string, password: string): Promise<string> {
     const user = await this.userRepo.findByEmail(email);
     if (!user) {

@@ -14,8 +14,12 @@ import {
   registerSchema,
 } from "./types";
 import { AuthPublicError } from "./errors";
+import { ConfigService } from "@/config";
 
-export function authApp(authService: AuthService) {
+export function authApp(
+  configService: ConfigService,
+  authService: AuthService,
+) {
   const app = new Hono();
 
   app.get("/register", (c) => c.html(<RegisterPage />));
@@ -105,7 +109,13 @@ export function authApp(authService: AuthService) {
           formValues.email,
           formValues.password,
         );
-        setCookie(c, AUTH_JWT_COOKIE_NAME, token);
+        setCookie(c, AUTH_JWT_COOKIE_NAME, token, {
+          sameSite: "Lax",
+          httpOnly: true,
+          expires: new Date(
+            Date.now() + 1000 * 60 * configService.env.JWT_EXP_MINUTES,
+          ),
+        });
         c.res.headers.set("HX-Redirect", "/panel");
         return c.html("ok");
       } catch (err) {
