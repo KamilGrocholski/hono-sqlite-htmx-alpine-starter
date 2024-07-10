@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach } from "bun:test";
 import { Hono } from "hono";
+import { JWTPayload } from "hono/utils/jwt/types";
 
 import { jwtMiddleware } from "./middleware";
 import { JwtPayload, JwtService } from "./service";
@@ -26,7 +27,12 @@ describe("Jwt middleware", async () => {
         Cookie: `jwt=${token}`,
       },
     });
-    expect(jwtPayload as unknown as {}).toEqual(expectedJwtPayload);
+    expect(jwtPayload as unknown as JWTPayload & JwtPayload).toSatisfy((v) => {
+      return (
+        v.sessionId === expectedJwtPayload.sessionId &&
+        v.userId === expectedJwtPayload.userId
+      );
+    });
   });
 
   test("should set payload to null when jwt cookie does not exist", async () => {

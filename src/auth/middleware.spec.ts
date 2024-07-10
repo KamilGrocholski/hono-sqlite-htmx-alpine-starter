@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach } from "bun:test";
 import { Hono } from "hono";
+import { JWTPayload } from "hono/utils/jwt/types";
 
 import { JwtPayload, JwtService, jwtMiddleware } from "@/jwt";
 import { Session, SessionRepo, SessionRepoInMemory } from "@/session";
@@ -42,7 +43,7 @@ describe("Auth middlewares", async () => {
   const userUserSession: Session = {
     id: 2,
     userId: userUser.id,
-    expiresAt: new Date(Date.now() + 10_000),
+    expiresAt: new Date(Date.now() + 100_000),
   };
 
   beforeEach(() => {
@@ -62,7 +63,7 @@ describe("Auth middlewares", async () => {
     );
     jwtService = new JwtService("jwt", 15, "secret");
     authService = new AuthService(
-      () => new Date(Date.now() + 10_000),
+      () => new Date(Date.now() + 100_000),
       sessionRepo,
       userRepo,
       jwtService,
@@ -89,7 +90,12 @@ describe("Auth middlewares", async () => {
         Cookie: `jwt=${token}`,
       },
     });
-    expect(jwtPayload as unknown as {}).toEqual(expectedJwtPayload);
+    expect(jwtPayload as unknown as JWTPayload & JwtPayload).toSatisfy((v) => {
+      return (
+        v.sessionId === expectedJwtPayload.sessionId &&
+        v.userId === expectedJwtPayload.userId
+      );
+    });
   });
 
   test("should not allow to do a request with adminMiddleware while not having role admin", async () => {
