@@ -17,6 +17,6 @@ export class AuthPublicError extends PublicError {
   }
 
   check(err: unknown): AuthPublicError | undefined {
-    return AuthPublicError.is(err) && err === this ? this : undefined;
+    return err === this ? this : undefined;
   }
 }

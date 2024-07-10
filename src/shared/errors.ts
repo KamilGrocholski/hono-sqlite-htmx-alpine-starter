@@ -18,6 +18,6 @@ export class PublicError extends Error {
   }
 
   check(err: unknown): PublicError | undefined {
-    return PublicError.is(err) && err === this ? this : undefined;
+    return err === this ? this : undefined;
   }
 }

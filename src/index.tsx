@@ -18,6 +18,7 @@ import {
 } from "@/shared";
 import { ConfigService } from "@/config";
 
+// TODO how to use it everywhere
 const configService = new ConfigService((name) => process.env[name]);
 
 const db = connectDB();
