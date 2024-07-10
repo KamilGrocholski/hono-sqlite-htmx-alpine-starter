@@ -9,13 +9,13 @@ bun install
 Migrate database:
 
 ```sh
-bun db:migrate
+bun run db:migrate
 ```
 
 Seed database:
 
 ```sh
-bun db:seed
+bun run db:seed
 ```
 
 Run:
