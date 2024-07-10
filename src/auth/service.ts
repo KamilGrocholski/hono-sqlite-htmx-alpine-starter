@@ -38,12 +38,12 @@ export class AuthService {
   async login(email: string, password: string): Promise<string> {
     const user = await this.userRepo.findByEmail(email);
     if (!user) {
-      throw AuthPublicError.EmailDoesNotExist;
+      throw AuthPublicError.InvalidCredentials;
     }
 
     const isPasswordValid = await this.verifyPassword(password, user.password);
     if (!isPasswordValid) {
-      throw AuthPublicError.PasswordInvalid;
+      throw AuthPublicError.InvalidCredentials;
     }
 
     const session = await this.sessionRepo.create(

@@ -122,22 +122,14 @@ export function authApp(authService: AuthService, jwtService: JwtService) {
         c.res.headers.set("HX-Redirect", "/panel");
         return c.html("ok");
       } catch (err) {
-        if (!PublicError.is(err)) {
-          return c.html(
-            <LoginForm
-              formValues={formValues}
-              globalError={PublicError.SomethingWentWrong.message}
-            />,
-          );
-        }
         return c.html(
           <LoginForm
             formValues={formValues}
-            formErrors={{
-              email: AuthPublicError.EmailDoesNotExist.check(err)?.message,
-              password: AuthPublicError.PasswordInvalid.check(err)?.message,
-            }}
-            globalError={PublicError.isExact(err) ? err.message : undefined}
+            globalError={
+              (AuthPublicError.isExact(err) &&
+                AuthPublicError.InvalidCredentials.message) ||
+              PublicError.SomethingWentWrong.message
+            }
           />,
         );
       }

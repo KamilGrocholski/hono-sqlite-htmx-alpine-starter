@@ -1,12 +1,9 @@
 import { PublicError } from "@/errors";
 
 export class AuthPublicError extends PublicError {
+  static InvalidCredentials = new AuthPublicError("Invalid credentials");
   static UserNotFound = new AuthPublicError("User not found");
   static EmailTaken = new AuthPublicError("Email is already taken");
-  static EmailDoesNotExist = new AuthPublicError(
-    "User with such e-mail does not exist",
-  );
-  static PasswordInvalid = new AuthPublicError("Password is invalid");
 
   constructor(message?: string, options?: ErrorOptions) {
     super(message, options);

@@ -6,7 +6,7 @@ export const loginSchema = userSchema
   .pick({
     email: true,
   })
-  .extend({ password: z.string() });
+  .extend({ password: z.string().min(1, { message: "Password is required" }) });
 export type LoginSchemaErrors = z.inferFormattedError<typeof loginSchema>;
 
 export const registerSchema = userSchema

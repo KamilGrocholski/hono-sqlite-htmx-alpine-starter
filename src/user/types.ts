@@ -14,7 +14,7 @@ export class User {
 
 export const userSchema = z.object({
   id: z.number().int().positive(),
-  email: z.string({ required_error: "E-mail is required" }).email(),
+  email: z.string().min(1, { message: "E-mail is required" }).email(),
   password: z
     .string({ required_error: "Password is required" })
     .trim()
