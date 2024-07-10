@@ -14,6 +14,7 @@ import {
   UnauthorizedPage,
   PanelPage,
   AdminPanelPage,
+  AppContext,
 } from "@/shared";
 import { ConfigService } from "@/config";
 
@@ -35,9 +36,9 @@ export const authService = new AuthService(
   jwtService,
 );
 
-const app = new Hono();
+const app = new Hono<AppContext>();
 
-if (configService.env.NODE_ENV !== "production") {
+if (configService.env.NODE_ENV === "development") {
   app.use(logger());
 }
 
@@ -63,12 +64,12 @@ app.get("/500", async (c) => {
 
 app.route("", authApp(configService, authService));
 
-const panelApp = new Hono();
+const panelApp = new Hono<AppContext>();
 panelApp.use(authMiddleware(authService));
 panelApp.get("/", (c) => c.html(<PanelPage />));
 app.route("/panel", panelApp);
 
-const adminApp = new Hono();
+const adminApp = new Hono<AppContext>();
 adminApp.use(authMiddleware(authService), adminMiddleware(authService));
 adminApp.get("/", (c) => c.html(<AdminPanelPage />));
 app.route("/admin", adminApp);

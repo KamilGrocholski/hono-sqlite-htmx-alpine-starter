@@ -4,7 +4,8 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import { zValidator } from "@hono/zod-validator";
 
 import { AUTH_JWT_COOKIE_NAME } from "@/jwt";
-import { PublicError } from "@/shared";
+import { AppContext, PublicError } from "@/shared";
+import { ConfigService } from "@/config";
 import { AuthService } from "./service";
 import { LoginForm, LoginPage, RegisterForm, RegisterPage } from "./views";
 import {
@@ -14,19 +15,18 @@ import {
   registerSchema,
 } from "./types";
 import { AuthPublicError } from "./errors";
-import { ConfigService } from "@/config";
 
 export function authApp(
   configService: ConfigService,
   authService: AuthService,
 ) {
-  const app = new Hono();
+  const authApp = new Hono<AppContext>();
 
-  app.get("/register", (c) => c.html(<RegisterPage />));
+  authApp.get("/register", (c) => c.html(<RegisterPage />));
 
-  app.get("/login", (c) => c.html(<LoginPage />));
+  authApp.get("/login", (c) => c.html(<LoginPage />));
 
-  app.delete("/logout", async (c) => {
+  authApp.delete("/logout", async (c) => {
     try {
       const jwtPayload = c.get("jwtPayload");
       if (!jwtPayload) return;
@@ -39,7 +39,7 @@ export function authApp(
     }
   });
 
-  app.post(
+  authApp.post(
     "/register",
     zValidator("form", registerSchema, (result, c) => {
       if (!result.success) {
@@ -86,7 +86,7 @@ export function authApp(
     },
   );
 
-  app.post(
+  authApp.post(
     "/login",
     zValidator("form", loginSchema, (result, c) => {
       if (!result.success) {
@@ -141,5 +141,5 @@ export function authApp(
     },
   );
 
-  return app;
+  return authApp;
 }
