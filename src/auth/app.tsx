@@ -1,11 +1,9 @@
 import { Hono } from "hono";
-import { deleteCookie, setCookie } from "hono/cookie";
 
 import { zValidator } from "@hono/zod-validator";
 
-import { AUTH_JWT_COOKIE_NAME } from "@/jwt";
+import { JwtService } from "@/jwt";
 import { AppContext, PublicError } from "@/shared";
-import { ConfigService } from "@/config";
 import { AuthService } from "./service";
 import { LoginForm, LoginPage, RegisterForm, RegisterPage } from "./views";
 import {
@@ -16,10 +14,7 @@ import {
 } from "./types";
 import { AuthPublicError } from "./errors";
 
-export function authApp(
-  configService: ConfigService,
-  authService: AuthService,
-) {
+export function authApp(authService: AuthService, jwtService: JwtService) {
   const authApp = new Hono<AppContext>();
 
   authApp.get("/register", (c) => c.html(<RegisterPage />));
@@ -32,7 +27,7 @@ export function authApp(
       if (!jwtPayload) return;
       await authService.logout(jwtPayload.sessionId);
       c.res.headers.set("HX-Location", "/");
-      deleteCookie(c, AUTH_JWT_COOKIE_NAME);
+      jwtService.deleteCookie(c);
       return c.html("ok");
     } catch (err) {
       // TODO
@@ -109,13 +104,7 @@ export function authApp(
           formValues.email,
           formValues.password,
         );
-        setCookie(c, AUTH_JWT_COOKIE_NAME, token, {
-          sameSite: "Lax",
-          httpOnly: true,
-          expires: new Date(
-            Date.now() + 1000 * 60 * configService.env.JWT_EXP_MINUTES,
-          ),
-        });
+        jwtService.setCookie(c, token);
         c.res.headers.set("HX-Redirect", "/panel");
         return c.html("ok");
       } catch (err) {

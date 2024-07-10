@@ -9,7 +9,7 @@ describe("Jwt middleware", async () => {
   let jwtService: JwtService;
 
   beforeEach(() => {
-    jwtService = new JwtService("secret");
+    jwtService = new JwtService("jwt", 15, "secret");
     app = new Hono();
     app.use(jwtMiddleware(jwtService));
   });

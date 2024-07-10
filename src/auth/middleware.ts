@@ -2,6 +2,7 @@ import { MiddlewareHandler } from "hono";
 
 import { UserRole } from "@/user";
 import { AuthService } from "./service";
+import { AppContext } from "@/shared";
 
 export function authMiddleware(authService: AuthService): MiddlewareHandler {
   return async function (c, next) {
@@ -23,7 +24,9 @@ export function authMiddleware(authService: AuthService): MiddlewareHandler {
   };
 }
 
-export function adminMiddleware(authService: AuthService): MiddlewareHandler {
+export function adminMiddleware(
+  authService: AuthService,
+): MiddlewareHandler<AppContext> {
   return async function (c, next) {
     try {
       const jwtPayload = c.get("jwtPayload");

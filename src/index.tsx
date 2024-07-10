@@ -16,22 +16,16 @@ import {
   AdminPanelPage,
   AppContext,
 } from "@/shared";
-import { ConfigService } from "@/config";
-
-// TODO how to use it everywhere
-const configService = new ConfigService((name) => process.env[name]);
+import { env } from "@/env";
 
 const db = connectDB();
 
 const userRepo = new UserRepoSqlite(db);
 const sessionRepo = new SessionRepoSqlite(db);
 
-const jwtService = new JwtService(configService.env.JWT_SECRET);
+const jwtService = new JwtService("jwt", env.JWT_EXP_MINUTES, env.JWT_SECRET);
 export const authService = new AuthService(
-  () =>
-    new Date(
-      Date.now() + 1000 * 60 * configService.env.SESSION_EXP_TIME_MINUTES,
-    ),
+  () => new Date(Date.now() + 1000 * 60 * env.SESSION_EXP_TIME_MINUTES),
   sessionRepo,
   userRepo,
   jwtService,
@@ -39,7 +33,7 @@ export const authService = new AuthService(
 
 const app = new Hono<AppContext>();
 
-if (configService.env.NODE_ENV === "development") {
+if (env.NODE_ENV === "development") {
   app.use(logger());
 }
 
@@ -63,7 +57,7 @@ app.get("/500", async (c) => {
   return c.html(<InternalServerErrorPage />);
 });
 
-app.route("", authApp(configService, authService));
+app.route("", authApp(authService, jwtService));
 
 const panelApp = new Hono<AppContext>();
 panelApp.use(authMiddleware(authService));

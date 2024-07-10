@@ -19,7 +19,7 @@ describe("Auth service", async () => {
   }
 
   beforeEach(() => {
-    jwtService = new JwtService("secret");
+    jwtService = new JwtService("jwt", 15, "secret");
     userRepo = new UserRepoInMemory(idGenerator(), new Map());
     sessionRepo = new SessionRepoInMemory(idGenerator(), new Map());
     authService = new AuthService(

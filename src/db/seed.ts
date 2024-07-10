@@ -1,5 +1,6 @@
 import { connectDB } from "./db";
 
+import { env } from "@/env";
 import { AuthService } from "@/auth";
 import { authService } from "../.";
 
@@ -7,15 +8,9 @@ import { authService } from "../.";
   const db = connectDB();
 
   const tx = db.transaction(async () => {
-    await authService.registerAdmin(
-      process.env.ADMIN_EMAIL!,
-      process.env.ADMIN_PASSWORD!,
-    );
-    await authService.registerUser(
-      process.env.USER_EMAIL!,
-      process.env.USER_PASSWORD!,
-    );
-    console.log("database ", db.filename, "seeded");
+    await authService.registerAdmin(env.ADMIN_EMAIL, env.ADMIN_PASSWORD);
+    await authService.registerUser(env.USER_EMAIL, env.USER_PASSWORD);
+    console.log("seeded: ", db.filename);
   });
   await tx();
 
