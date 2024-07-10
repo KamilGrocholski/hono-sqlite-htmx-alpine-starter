@@ -1,3 +1,5 @@
+Requires bun version >=1.1.14 for '.as()' mapping in sqlite
+
 Create .env based on .env.example
 
 Install dependencies:
