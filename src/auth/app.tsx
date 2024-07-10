@@ -63,14 +63,14 @@ export function authApp(authService: AuthService, jwtService: JwtService) {
       } catch (err) {
         if (!PublicError.is(err)) {
           return c.html(
-            <RegisterPage
+            <RegisterForm
               formValues={formValues}
               globalError={PublicError.SomethingWentWrong.message}
             />,
           );
         }
         return c.html(
-          <RegisterPage
+          <RegisterForm
             formValues={formValues}
             formErrors={{
               email: AuthPublicError.EmailTaken.check(err)?.message,

@@ -3,12 +3,26 @@ import { Document } from "@/shared/views/document";
 export function LoginPage() {
   return (
     <Document>
-      <div class="max-w-xs">
-        <LoginForm />
-        <div class="text-center">
-          <a class="link link-primary" href="/register">
-            Create an account
-          </a>
+      <div className="hero bg-base-200 min-h-screen">
+        <div className="hero-content flex-col lg:flex-row-reverse">
+          <div className="text-center lg:text-left">
+            <h1 className="text-5xl font-bold">Cos!</h1>
+            <p className="py-6">
+              Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+              excepturi exercitationem quasi. In deleniti eaque aut repudiandae
+              et a id nisi.
+            </p>
+          </div>
+          <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+            <div class="card-body">
+              <LoginForm />
+              <div class="text-center">
+                <a class="link link-primary" href="/register">
+                  Create an account
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Document>
@@ -35,7 +49,7 @@ export function LoginForm({
           name="email"
           value={formValues?.email}
           placeholder="email@gmail.com"
-          className="input input-bordered w-full max-w-xs"
+          className="input input-bordered placeholder-neutral w-full max-w-xs"
         />
         <div className="label">
           <span className="label-text text-error">{formErrors?.email}</span>
@@ -51,7 +65,7 @@ export function LoginForm({
           name="password"
           value={formValues?.password}
           placeholder="*****"
-          className="input input-bordered w-full max-w-xs"
+          className="input input-bordered placeholder-neutral w-full max-w-xs"
         />
         <div className="label">
           <span className="label-text text-error">{formErrors?.password}</span>

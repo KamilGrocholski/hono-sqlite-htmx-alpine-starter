@@ -14,12 +14,19 @@ export type JwtPayload = {
 export class JwtService {
   constructor(
     private cookieName: string,
-    private cookieExpMinutes: number,
+    private jwtExpMinutes: number,
     private secret: string,
   ) {}
 
   async sign(payload: JwtPayload): Promise<string> {
-    return await sign(payload, this.secret);
+    return await sign(
+      {
+        userId: payload.userId,
+        sessionId: payload.sessionId,
+        exp: Math.floor((Date.now() / 1000) * 60 * this.jwtExpMinutes),
+      },
+      this.secret,
+    );
   }
 
   async verify(token: string): Promise<JwtPayload> {
@@ -30,7 +37,6 @@ export class JwtService {
     setCookie(c, this.cookieName, token, {
       sameSite: "Lax",
       httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 60 * this.cookieExpMinutes),
     });
   }
 

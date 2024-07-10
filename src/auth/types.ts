@@ -2,10 +2,11 @@ import { z } from "zod";
 
 import { userSchema } from "@/user";
 
-export const loginSchema = userSchema.pick({
-  email: true,
-  password: true,
-});
+export const loginSchema = userSchema
+  .pick({
+    email: true,
+  })
+  .extend({ password: z.string() });
 export type LoginSchemaErrors = z.inferFormattedError<typeof loginSchema>;
 
 export const registerSchema = userSchema

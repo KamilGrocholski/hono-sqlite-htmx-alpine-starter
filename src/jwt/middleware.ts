@@ -1,19 +1,29 @@
 import { MiddlewareHandler } from "hono";
 
 import { JwtService } from "./service";
+import { JwtTokenExpired } from "hono/utils/jwt/types";
 
 export function jwtMiddleware(jwtService: JwtService): MiddlewareHandler {
   return async function (c, next) {
+    let jwtPayload;
     try {
       const token = jwtService.getCookie(c);
       if (token) {
-        const jwtPayload = await jwtService.verify(token);
+        jwtPayload = await jwtService.verify(token);
         c.set("jwtPayload", jwtPayload);
       } else {
         c.set("jwtPayload", null);
       }
     } catch (err) {
-      c.set("jwtPayload", null);
+      if (err instanceof JwtTokenExpired) {
+        if (jwtPayload) {
+          const token = await jwtService.sign(jwtPayload);
+          jwtService.setCookie(c, token);
+          c.set("jwtPayload", jwtPayload);
+        }
+      } else {
+        c.set("jwtPayload", null);
+      }
     }
     return await next();
   };
