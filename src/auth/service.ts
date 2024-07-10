@@ -5,7 +5,7 @@ import { AuthPublicError } from "./errors";
 
 export class AuthService {
   constructor(
-    private generateExpiresAt: () => Date,
+    private generateSessionExpiresAt: () => Date,
     private sessionRepo: SessionRepo,
     private userRepo: UserRepo,
     private jwtService: JwtService,
@@ -48,7 +48,7 @@ export class AuthService {
 
     const session = await this.sessionRepo.create(
       user.id,
-      this.generateExpiresAt(),
+      this.generateSessionExpiresAt(),
     );
 
     const token = await this.jwtService.sign({
