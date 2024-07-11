@@ -6,7 +6,12 @@ import { serveStatic } from "hono/bun";
 import { connectDB } from "@/db";
 import { UserRepoSqlite, UserService } from "@/user";
 import { SessionRepoSqlite } from "@/session";
-import { AuthService, authMiddleware, authApp, adminMiddleware } from "@/auth";
+import {
+  AuthService,
+  authMiddleware,
+  createAuthApp,
+  adminMiddleware,
+} from "@/auth";
 import { JwtService, jwtMiddleware } from "@/jwt";
 import {
   InternalServerErrorPage,
@@ -67,7 +72,7 @@ app.get("/500", async (c) => {
   return c.html(<InternalServerErrorPage />);
 });
 
-app.route("", authApp(authService, jwtService));
+app.route("", createAuthApp(authService, jwtService));
 
 const panelApp = new Hono<AppContext>();
 panelApp.use(authMiddleware(authService));
