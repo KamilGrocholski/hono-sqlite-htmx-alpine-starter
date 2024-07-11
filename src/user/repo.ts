@@ -62,16 +62,11 @@ export class UserRepoSqlite implements UserRepo {
     };
     const totalPages = Math.ceil(count.totalUsers / perPage);
 
-    return new Pagination({
+    return Pagination.from({
+      perPage,
+      totalItems: totalPages,
+      currentPage: page,
       data: users,
-      meta: {
-        perPage,
-        currentPage: page,
-        totalPages,
-        totalItems: count.totalUsers,
-        hasPrev: page > 1,
-        hasNext: page < totalPages,
-      },
     });
   }
 }
@@ -116,17 +111,11 @@ export class UserRepoInMemory implements UserRepo {
     const users = [...this.memory.values()].sort((a, b) => {
       return a.createdAt > b.createdAt ? 1 : -1;
     });
-    const totalPages = Math.ceil(users.length / users.length);
-    return new Pagination({
+    return Pagination.from({
+      perPage,
+      totalItems: users.length,
+      currentPage: page,
       data: users,
-      meta: {
-        perPage,
-        currentPage: page,
-        totalPages,
-        totalItems: users.length,
-        hasPrev: page > 1,
-        hasNext: page < totalPages,
-      },
     });
   }
 }
