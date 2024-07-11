@@ -36,4 +36,4 @@ const input: EnvInput = {
   NODE_ENV: process.env["NODE_ENV"],
 };
 
-export const env = envSchema.parse(input);
+export const env = Object.freeze(envSchema.parse(input));
