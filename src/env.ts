@@ -17,23 +17,23 @@ const envSchema = z.object({
   USER_EMAIL: z.string().email(),
   USER_PASSWORD: z.string().trim(),
 
-  NODE_ENV: z.enum(["development", "test", "production"]),
+  ENV: z.enum(["development", "test", "production"]),
 });
 
 const input: EnvInput = {
-  DB_URL: process.env.DB_URL,
+  DB_URL: process.env["DB_URL"],
 
-  JWT_SECRET: process.env.JWT_SECRET,
-  JWT_EXP_MINUTES: process.env.JWT_EXP_MINUTES,
+  JWT_SECRET: process.env["JWT_SECRET"],
+  JWT_EXP_MINUTES: process.env["JWT_EXP_MINUTES"],
 
-  SESSION_EXP_TIME_MINUTES: process.env.SESSION_EXP_TIME_MINUTES,
+  SESSION_EXP_TIME_MINUTES: process.env["SESSION_EXP_TIME_MINUTES"],
 
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL,
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
-  USER_EMAIL: process.env.USER_EMAIL,
-  USER_PASSWORD: process.env.USER_PASSWORD,
+  ADMIN_EMAIL: process.env["ADMIN_EMAIL"],
+  ADMIN_PASSWORD: process.env["ADMIN_PASSWORD"],
+  USER_EMAIL: process.env["USER_EMAIL"],
+  USER_PASSWORD: process.env["USER_PASSWORD"],
 
-  NODE_ENV: process.env.NODE_ENV,
+  ENV: process.env["ENV"],
 };
 
 export const env = envSchema.parse(input);

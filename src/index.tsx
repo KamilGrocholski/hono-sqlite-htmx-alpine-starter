@@ -41,7 +41,7 @@ export const authService = new AuthService(
 
 const app = new Hono<AppContext>();
 
-if (env.NODE_ENV === "development") {
+if (env.ENV === "development") {
   app.use(logger());
 }
 
