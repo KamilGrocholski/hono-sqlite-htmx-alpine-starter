@@ -3,7 +3,7 @@ dist/
 build/
 
 # built css
-public/global.css
+static/global.css
 
 # deps
 node_modules/

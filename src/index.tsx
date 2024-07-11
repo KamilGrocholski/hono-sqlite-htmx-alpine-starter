@@ -55,7 +55,7 @@ app.use(jwtMiddleware(jwtService));
 
 app.notFound(async (c) => c.html(<NotFoundPage />));
 
-app.use("/public/*", async (c, next) => {
+app.use("/static/*", async (c, next) => {
   c.res.headers.set("Cache-Control", "private,max-age=31536000,immutable");
   return await serveStatic({ root: "./" })(c, next);
 });

@@ -1,7 +1,7 @@
 {
   "name": "htmx-hono-sqlite-starter",
   "scripts": {
-    "tw": "bunx tailwindcss -i ./src/input.css -o ./public/global.css",
+    "tw": "bunx tailwindcss -i ./src/input.css -o ./static/global.css",
     "dev": "concurrently \"bun --hot src/index.tsx\" \"bun run tw --watch\"",
     "start": "bun run build && bun ./dist/index.js",
     "build": "bun run tw --minify && bun build src/index.tsx --outdir=./dist --target=bun --minify",
