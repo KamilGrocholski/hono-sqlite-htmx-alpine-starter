@@ -2,15 +2,19 @@ import { Hono } from "hono";
 import { secureHeaders } from "hono/secure-headers";
 import { logger } from "hono/logger";
 import { serveStatic } from "hono/bun";
+import { showRoutes } from "hono/dev";
+
+import { z } from "zod";
+import { zValidator } from "@hono/zod-validator";
 
 import { connectDB } from "@/db";
 import { UserRepoSqlite, UserService } from "@/user";
 import { SessionRepoSqlite } from "@/session";
 import {
   AuthService,
-  authMiddleware,
+  authOnlyMiddleware,
   createAuthApp,
-  adminMiddleware,
+  adminOnlyMiddleware,
 } from "@/auth";
 import { JwtService, jwtMiddleware } from "@/jwt";
 import {
@@ -75,7 +79,7 @@ app.get("/500", async (c) => {
 app.route("", createAuthApp(authService, jwtService));
 
 const panelApp = new Hono<AppContext>();
-panelApp.use(authMiddleware(authService));
+panelApp.use(authOnlyMiddleware(authService));
 panelApp.get("/", async (c) => {
   const { userId } = c.get("jwtPayload");
   const user = await userService.findById(userId);
@@ -86,7 +90,7 @@ panelApp.get("/", async (c) => {
 app.route("/panel", panelApp);
 
 const adminApp = new Hono<AppContext>();
-adminApp.use(authMiddleware(authService), adminMiddleware(authService));
+adminApp.use(authOnlyMiddleware(authService), adminOnlyMiddleware(authService));
 adminApp.get("/", async (c) => {
   const { userId } = c.get("jwtPayload");
   const user = await userService.findById(userId);
@@ -96,6 +100,77 @@ adminApp.get("/", async (c) => {
     />,
   );
 });
+adminApp.get(
+  "/users",
+  zValidator(
+    "query",
+    z.object({
+      page: z.coerce.number().int().positive(),
+      perPage: z.coerce.number().int().positive(),
+    }),
+  ),
+  async (c) => {
+    const query = c.req.valid("query");
+    const usersPagination = await userService.findPaginated(
+      query.page,
+      query.perPage,
+    );
+    return c.html(
+      <div id="users-table" class="flex flex-col items-center gap-5">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Id</th>
+                <th>E-mail</th>
+                <th>Role</th>
+                <th>Created at</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usersPagination.page.data.map((user, userIdx) => (
+                <tr>
+                  <th>{userIdx + 1}</th>
+                  <td>{user.id}</td>
+                  <td>{user.email}</td>
+                  <td>{user.role}</td>
+                  <td>{user.createdAt.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="join">
+          <button
+            class={`join-item btn ${!usersPagination.page.meta.hasPrev ? "btn-disabled" : ""}`}
+            hx-get={`/admin/users?page=${usersPagination.page.meta.currentPage - 1}&perPage=${usersPagination.page.meta.perPage}`}
+            hx-swap="outerHTML"
+            hx-target="closest #users-table"
+          >
+            «
+          </button>
+          <button class="join-item btn">
+            Page {usersPagination.page.meta.currentPage}
+          </button>
+          <button
+            class={`join-item btn ${!usersPagination.page.meta.hasNext ? "btn-disabled" : ""}`}
+            hx-get={`/admin/users?page=${usersPagination.page.meta.currentPage + 1}&perPage=${usersPagination.page.meta.perPage}`}
+            hx-swap="outerHTML"
+            hx-target="closest #users-table"
+          >
+            »
+          </button>
+        </div>
+      </div>,
+    );
+  },
+);
 app.route("/admin", adminApp);
+
+if (env.NODE_ENV === "development") {
+  showRoutes(app, { verbose: true, colorize: true });
+}
 
 export default app;

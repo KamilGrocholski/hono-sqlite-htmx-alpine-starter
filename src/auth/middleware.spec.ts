@@ -5,7 +5,7 @@ import { JWTPayload } from "hono/utils/jwt/types";
 import { JwtPayload, JwtService, jwtMiddleware } from "@/jwt";
 import { Session, SessionRepo, SessionRepoInMemory } from "@/session";
 import { User, UserRepo, UserRepoInMemory, UserRole } from "@/user";
-import { adminMiddleware, authMiddleware } from "./middleware";
+import { adminOnlyMiddleware, authOnlyMiddleware } from "./middleware";
 import { AuthService } from "./service";
 
 describe("Auth middlewares", async () => {
@@ -25,12 +25,15 @@ describe("Auth middlewares", async () => {
     email: "admin@gmail.com",
     password: "Haslo1234",
     role: UserRole.Admin,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   const adminUserSession: Session = {
     id: 1,
     userId: adminUser.id,
     expiresAt: new Date(Date.now() + 10_000),
+    createdAt: new Date(),
   };
 
   const userUser: User = {
@@ -38,12 +41,15 @@ describe("Auth middlewares", async () => {
     email: "user@gmail.com",
     password: "Haslo1234",
     role: UserRole.User,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   const userUserSession: Session = {
     id: 2,
     userId: userUser.id,
     expiresAt: new Date(Date.now() + 100_000),
+    createdAt: new Date(),
   };
 
   beforeEach(() => {
@@ -73,8 +79,8 @@ describe("Auth middlewares", async () => {
   });
 
   test("should verify role admin and finish the request successfully", async () => {
-    app.use(authMiddleware(authService));
-    app.use(adminMiddleware(authService));
+    app.use(authOnlyMiddleware(authService));
+    app.use(adminOnlyMiddleware(authService));
 
     let jwtPayload = null;
     app.get("/path", async (c) => {
@@ -99,8 +105,8 @@ describe("Auth middlewares", async () => {
   });
 
   test("should not allow to do a request with adminMiddleware while not having role admin", async () => {
-    app.use(authMiddleware(authService));
-    app.use(adminMiddleware(authService));
+    app.use(authOnlyMiddleware(authService));
+    app.use(adminOnlyMiddleware(authService));
 
     let jwtPayload = null;
     app.get("/path", async (c) => {

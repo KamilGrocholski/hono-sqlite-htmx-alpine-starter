@@ -10,6 +10,8 @@ export class User {
   email!: string;
   password!: string;
   role!: UserRole;
+  createdAt!: Date;
+  updatedAt!: Date;
 }
 
 export const userSchema = z.object({

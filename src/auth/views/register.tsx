@@ -1,8 +1,12 @@
+import { ThemeSwap } from "@/shared";
 import { Document } from "@/shared/views/document";
 
 export function RegisterPage() {
   return (
     <Document>
+      <div class="fixed top-5 right-5">
+        <ThemeSwap />
+      </div>
       <div class="hero bg-base-200 min-h-screen">
         <div class="hero-content flex-col lg:flex-row-reverse">
           <div class="text-center lg:text-left">
@@ -59,7 +63,7 @@ export function RegisterForm({
           name="email"
           value={formValues?.email}
           placeholder="email@gmail.com"
-          class="input input-bordered placeholder-neutral w-full max-w-xs"
+          class="input input-bordered w-full max-w-xs"
         />
         <div class="label">
           <span class="label-text text-error">{formErrors?.email}</span>
@@ -75,7 +79,7 @@ export function RegisterForm({
           name="password"
           value={formValues?.password}
           placeholder="*****"
-          class="input input-bordered placeholder-neutral w-full max-w-xs"
+          class="input input-bordered w-full max-w-xs"
         />
         <div class="label">
           <span class="label-text text-error">{formErrors?.password}</span>
@@ -91,7 +95,7 @@ export function RegisterForm({
           name="confirmPassword"
           value={formValues?.confirmPassword}
           placeholder="*****"
-          class="input input-bordered placeholder-neutral w-full max-w-xs"
+          class="input input-bordered w-full max-w-xs"
         />
         <div class="label">
           <span class="label-text text-error">

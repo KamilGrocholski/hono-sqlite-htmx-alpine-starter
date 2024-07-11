@@ -1,3 +1,5 @@
+import { ThemeSwap } from "./themeToggler";
+
 export function Navbar({ user }: { user: { email: string; role: string } }) {
   return (
     <div class="navbar bg-base-200">
@@ -7,6 +9,7 @@ export function Navbar({ user }: { user: { email: string; role: string } }) {
             Panel
           </a>
         </div>
+
         <div class="flex-none gap-2">
           <div class="dropdown dropdown-end">
             <div
@@ -46,6 +49,8 @@ export function Navbar({ user }: { user: { email: string; role: string } }) {
             </ul>
           </div>
         </div>
+
+        <ThemeSwap />
       </div>
     </div>
   );

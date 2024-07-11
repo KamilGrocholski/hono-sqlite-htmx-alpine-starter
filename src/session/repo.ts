@@ -30,6 +30,7 @@ export class SessionRepoSqlite implements SessionRepo {
       .get(id);
     if (session) {
       session.expiresAt = new Date(session.expiresAt);
+      session.createdAt = new Date(session.createdAt);
     }
     return session;
   }
@@ -50,7 +51,12 @@ export class SessionRepoInMemory implements SessionRepo {
   ) {}
 
   async create(userId: User["id"], expiresAt: Date): Promise<Session> {
-    const session: Session = { id: this.generateId(), userId, expiresAt };
+    const session: Session = {
+      id: this.generateId(),
+      userId,
+      expiresAt,
+      createdAt: new Date(),
+    };
     this.memory.set(session.id, session);
     return session;
   }

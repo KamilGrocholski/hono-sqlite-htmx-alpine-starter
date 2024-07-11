@@ -5,7 +5,7 @@ export function Document({ children }: PropsWithChildren) {
   return (
     <>
       {html`<!doctype html>`}
-      <html lang="en">
+      <html lang="en" data-theme="light">
         <head>
           <meta charset="UTF-8" />
           <title>title</title>
@@ -13,6 +13,7 @@ export function Document({ children }: PropsWithChildren) {
           <link href="/public/global.css" rel="stylesheet" type="text/css" />
           <script src="/public/htmx_v2.0.0.js" defer></script>
           <script src="/public/alpine_v3.14.1.js" defer></script>
+          <script src="/public/theme-toggle_v0.0.0.js" defer></script>
         </head>
         <body>{children}</body>
       </html>

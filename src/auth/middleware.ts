@@ -4,7 +4,19 @@ import { UserRole } from "@/user";
 import { AppContext } from "@/types";
 import { AuthService } from "./service";
 
-export function authMiddleware(authService: AuthService): MiddlewareHandler {
+export function unauthOnlyMiddleware(): MiddlewareHandler {
+  return async function (c, next) {
+    const jwtPayload = c.get("jwtPayload");
+    if (jwtPayload) {
+      return c.redirect("/panel");
+    }
+    return await next();
+  };
+}
+
+export function authOnlyMiddleware(
+  authService: AuthService,
+): MiddlewareHandler {
   return async function (c, next) {
     try {
       const jwtPayload = c.get("jwtPayload");
@@ -24,7 +36,7 @@ export function authMiddleware(authService: AuthService): MiddlewareHandler {
   };
 }
 
-export function adminMiddleware(
+export function adminOnlyMiddleware(
   authService: AuthService,
 ): MiddlewareHandler<AppContext> {
   return async function (c, next) {

@@ -1,8 +1,12 @@
+import { ThemeSwap } from "./components";
 import { Document } from "./document";
 
 export function LandingPage() {
   return (
     <Document>
+      <div class="fixed top-5 right-5">
+        <ThemeSwap />
+      </div>
       <div
         class="hero min-h-screen"
         style={{
