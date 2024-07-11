@@ -15,7 +15,7 @@ import {
 } from "./types";
 import { AuthPublicError } from "./errors";
 
-export function authApp(authService: AuthService, jwtService: JwtService) {
+export function createAuthApp(authService: AuthService, jwtService: JwtService) {
   const authApp = new Hono<AppContext>();
 
   authApp.get("/register", (c) => c.html(<RegisterPage />));
