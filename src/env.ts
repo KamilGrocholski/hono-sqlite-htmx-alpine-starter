@@ -17,7 +17,7 @@ const envSchema = z.object({
   USER_EMAIL: z.string().email(),
   USER_PASSWORD: z.string().trim(),
 
-  ENV: z.enum(["development", "test", "production"]),
+  NODE_ENV: z.enum(["development", "test", "production"]),
 });
 
 const input: EnvInput = {
@@ -33,7 +33,7 @@ const input: EnvInput = {
   USER_EMAIL: process.env["USER_EMAIL"],
   USER_PASSWORD: process.env["USER_PASSWORD"],
 
-  ENV: process.env["ENV"],
+  NODE_ENV: process.env["NODE_ENV"],
 };
 
 export const env = envSchema.parse(input);
