@@ -4,16 +4,6 @@ import { UserRole } from "@/user";
 import { AppContext } from "@/types";
 import { AuthService } from "./service";
 
-export function unauthOnlyMiddleware(): MiddlewareHandler {
-  return async function (c, next) {
-    const jwtPayload = c.get("jwtPayload");
-    if (jwtPayload) {
-      return c.redirect("/panel");
-    }
-    return await next();
-  };
-}
-
 export function authOnlyMiddleware(
   authService: AuthService,
 ): MiddlewareHandler {

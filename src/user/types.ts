@@ -18,7 +18,7 @@ export const userSchema = z.object({
   id: z.number().int().positive(),
   email: z.string().min(1, { message: "E-mail is required" }).email(),
   password: z
-    .string({ required_error: "Password is required" })
+    .string()
     .trim()
     .min(5, { message: "Minimum length is 5" })
     .max(255, { message: "Maximum length is 255" }),

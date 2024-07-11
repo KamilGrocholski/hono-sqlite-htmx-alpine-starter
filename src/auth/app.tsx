@@ -14,7 +14,6 @@ import {
   registerSchema,
 } from "./types";
 import { AuthPublicError } from "./errors";
-import { unauthOnlyMiddleware } from "./middleware";
 
 export function createAuthApp(
   authService: AuthService,
@@ -22,17 +21,15 @@ export function createAuthApp(
 ) {
   const authApp = new Hono<AppContext>();
 
-  authApp.get("/register", unauthOnlyMiddleware(), (c) =>
-    c.html(<RegisterPage />),
-  );
+  authApp.get("/register", (c) => c.html(<RegisterPage />));
 
-  authApp.get("/login", unauthOnlyMiddleware(), (c) => c.html(<LoginPage />));
+  authApp.get("/login", (c) => c.html(<LoginPage />));
 
   authApp.delete("/logout", async (c) => {
     const jwtPayload = c.get("jwtPayload");
     if (!jwtPayload) return;
     await authService.logout(jwtPayload.sessionId);
-    c.res.headers.set("HX-Location", "/");
+    c.res.headers.set("HX-Redirect", "/");
     jwtService.deleteCookie(c);
     return c.html("ok");
   });
@@ -41,14 +38,13 @@ export function createAuthApp(
     const jwtPayload = c.get("jwtPayload");
     if (!jwtPayload) return;
     await authService.logoutFromAllUserSessions(jwtPayload.userId);
-    c.res.headers.set("HX-Location", "/");
+    c.res.headers.set("HX-Redirect", "/");
     jwtService.deleteCookie(c);
     return c.html("ok");
   });
 
   authApp.post(
     "/register",
-    unauthOnlyMiddleware(),
     zValidator("form", registerSchema, (result, c) => {
       if (!result.success) {
         const errors: RegisterSchemaErrors = result.error.format();
@@ -96,7 +92,6 @@ export function createAuthApp(
 
   authApp.post(
     "/login",
-    unauthOnlyMiddleware(),
     zValidator("form", loginSchema, (result, c) => {
       if (!result.success) {
         const errors: LoginSchemaErrors = result.error.format();
