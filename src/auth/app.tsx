@@ -15,7 +15,10 @@ import {
 } from "./types";
 import { AuthPublicError } from "./errors";
 
-export function createAuthApp(authService: AuthService, jwtService: JwtService) {
+export function createAuthApp(
+  authService: AuthService,
+  jwtService: JwtService,
+) {
   const authApp = new Hono<AppContext>();
 
   authApp.get("/register", (c) => c.html(<RegisterPage />));
@@ -23,29 +26,21 @@ export function createAuthApp(authService: AuthService, jwtService: JwtService) 
   authApp.get("/login", (c) => c.html(<LoginPage />));
 
   authApp.delete("/logout", async (c) => {
-    try {
-      const jwtPayload = c.get("jwtPayload");
-      if (!jwtPayload) return;
-      await authService.logout(jwtPayload.sessionId);
-      c.res.headers.set("HX-Location", "/");
-      jwtService.deleteCookie(c);
-      return c.html("ok");
-    } catch (err) {
-      // TODO
-    }
+    const jwtPayload = c.get("jwtPayload");
+    if (!jwtPayload) return;
+    await authService.logout(jwtPayload.sessionId);
+    c.res.headers.set("HX-Location", "/");
+    jwtService.deleteCookie(c);
+    return c.html("ok");
   });
 
   authApp.delete("/logout-total", async (c) => {
-    try {
-      const jwtPayload = c.get("jwtPayload");
-      if (!jwtPayload) return;
-      await authService.logoutFromAllUserSessions(jwtPayload.userId);
-      c.res.headers.set("HX-Location", "/");
-      jwtService.deleteCookie(c);
-      return c.html("ok");
-    } catch (err) {
-      // TODO
-    }
+    const jwtPayload = c.get("jwtPayload");
+    if (!jwtPayload) return;
+    await authService.logoutFromAllUserSessions(jwtPayload.userId);
+    c.res.headers.set("HX-Location", "/");
+    jwtService.deleteCookie(c);
+    return c.html("ok");
   });
 
   authApp.post(
