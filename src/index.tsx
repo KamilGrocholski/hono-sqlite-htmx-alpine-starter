@@ -9,7 +9,7 @@ import { zValidator } from "@hono/zod-validator";
 
 import { connectDB } from "@/db";
 import { UserRepoSqlite, UserService } from "@/user";
-import { SessionRepoSqlite } from "@/session";
+import { SessionRepoSqlite, SessionService } from "@/session";
 import {
   AuthService,
   authOnlyMiddleware,
@@ -25,15 +25,21 @@ import {
   UnauthorizedPage,
   PanelPage,
   AdminPanelPage,
+  UsersTable,
+  SessionsTable,
+  SessionsTableTryAgain,
+  UsersTableTryAgain,
 } from "@/shared";
 import { env } from "@/env";
 import { AppContext } from "@/types";
+import { PublicError } from "@/errors";
 
 const db = connectDB();
 
 const userRepo = new UserRepoSqlite(db);
 const sessionRepo = new SessionRepoSqlite(db);
 
+const sessionService = new SessionService(sessionRepo);
 const userService = new UserService(userRepo);
 const jwtService = new JwtService("jwt", env.JWT_EXP_MINUTES, env.JWT_SECRET);
 export const authService = new AuthService(
@@ -91,6 +97,7 @@ app.route("/panel", panelApp);
 
 const adminApp = new Hono<AppContext>();
 adminApp.use(authOnlyMiddleware(authService), adminOnlyMiddleware(authService));
+
 adminApp.get("/", async (c) => {
   const { userId } = c.get("jwtPayload");
   const user = await userService.findById(userId);
@@ -100,6 +107,7 @@ adminApp.get("/", async (c) => {
     />,
   );
 });
+
 adminApp.get(
   "/users",
   zValidator(
@@ -108,69 +116,84 @@ adminApp.get(
       page: z.coerce.number().int().positive(),
       perPage: z.coerce.number().int().positive(),
     }),
+    (result, c) => {
+      if (!result.success) {
+        return c.html(
+          <span class="text-error">Bad request, reload the page</span>,
+        );
+      }
+    },
   ),
   async (c) => {
     const query = c.req.valid("query");
-    const usersPagination = await userService.findPaginated(
-      query.page,
-      query.perPage,
-    );
-    return c.html(
-      <div id="users-table" class="flex flex-col items-center gap-5">
-        <div class="overflow-x-auto">
-          <table class="table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Id</th>
-                <th>E-mail</th>
-                <th>Role</th>
-                <th>Created at</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usersPagination.page.data.map((user, userIdx) => (
-                <tr>
-                  <th>{userIdx + 1}</th>
-                  <td>{user.id}</td>
-                  <td>{user.email}</td>
-                  <td>{user.role}</td>
-                  <td>{user.createdAt.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="join">
-          <button
-            class={`join-item btn ${!usersPagination.page.meta.hasPrev ? "btn-disabled" : ""}`}
-            hx-get={`/admin/users?page=${usersPagination.page.meta.currentPage - 1}&perPage=${usersPagination.page.meta.perPage}`}
-            hx-swap="outerHTML"
-            hx-target="closest #users-table"
-          >
-            «
-          </button>
-          <button class="join-item btn">
-            Page {usersPagination.page.meta.currentPage}
-          </button>
-          <button
-            class={`join-item btn ${!usersPagination.page.meta.hasNext ? "btn-disabled" : ""}`}
-            hx-get={`/admin/users?page=${usersPagination.page.meta.currentPage + 1}&perPage=${usersPagination.page.meta.perPage}`}
-            hx-swap="outerHTML"
-            hx-target="closest #users-table"
-          >
-            »
-          </button>
-        </div>
-      </div>,
-    );
+    try {
+      const usersPagination = await userService.findPaginated(
+        query.page,
+        query.perPage,
+      );
+      return c.html(
+        <UsersTable
+          {...usersPagination.page.meta}
+          users={usersPagination.page.data}
+        />,
+      );
+    } catch (err) {
+      return c.html(
+        <UsersTableTryAgain
+          message={PublicError.SomethingWentWrong.message}
+          page={query.page}
+          perPage={query.perPage}
+        />,
+      );
+    }
   },
 );
+
+adminApp.get(
+  "/sessions",
+  zValidator(
+    "query",
+    z.object({
+      page: z.coerce.number().int().positive(),
+      perPage: z.coerce.number().int().positive(),
+    }),
+    (result, c) => {
+      if (!result.success) {
+        return c.html(
+          <span class="text-error">Bad request, reload the page</span>,
+        );
+      }
+    },
+  ),
+  async (c) => {
+    const query = c.req.valid("query");
+    try {
+      const sessionsPagination = await sessionService.findPaginated(
+        query.page,
+        query.perPage,
+      );
+      return c.html(
+        <SessionsTable
+          {...sessionsPagination.page.meta}
+          sessions={sessionsPagination.page.data}
+        />,
+      );
+    } catch (err) {
+      return c.html(
+        <SessionsTableTryAgain
+          message={PublicError.SomethingWentWrong.message}
+          page={query.page}
+          perPage={query.perPage}
+        />,
+      );
+    }
+  },
+);
+
 app.route("/admin", adminApp);
 
 if (env.NODE_ENV === "development") {
-  showRoutes(app, { verbose: true, colorize: true });
+  showRoutes(app, { verbose: false, colorize: true });
 }
 
 export default app;

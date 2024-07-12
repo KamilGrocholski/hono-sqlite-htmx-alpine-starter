@@ -1,11 +1,13 @@
 import { Database } from "bun:sqlite";
 
 import { User } from "@/user";
+import { Pagination } from "@/utils";
 import { Session } from "./types";
 
 export interface SessionRepo {
   create(userId: User["id"], expiresAt: Date): Promise<Session>;
   findById(id: Session["id"]): Promise<Session | null>;
+  findPaginated(page: number, perPage: number): Promise<Pagination<Session>>;
   deleteById(id: Session["id"]): Promise<void>;
   deleteByUserId(userId: User["id"]): Promise<void>;
 }
@@ -42,6 +44,33 @@ export class SessionRepoSqlite implements SessionRepo {
   async deleteByUserId(userId: number): Promise<void> {
     this.db.exec("DELETE FROM session WHERE userId = ?", [userId]);
   }
+
+  async findPaginated(
+    page: number,
+    perPage: number,
+  ): Promise<Pagination<Session>> {
+    const limit = perPage;
+    const offset = (page - 1) * limit;
+    const sessions = this.db
+      .query("SELECT * FROM session ORDER BY createdAt LIMIT ? OFFSET ?")
+      .as(Session)
+      .all(limit, offset);
+    sessions.forEach((s) => {
+      s.createdAt = new Date(s.createdAt);
+      s.expiresAt = new Date(s.expiresAt);
+    });
+    const count = this.db
+      .query("SELECT COUNT(*) as totalSessions  FROM session")
+      .get() as {
+      totalSessions: number;
+    };
+    return Pagination.from({
+      perPage,
+      totalItems: count.totalSessions,
+      currentPage: page,
+      data: sessions,
+    });
+  }
 }
 
 export class SessionRepoInMemory implements SessionRepo {
@@ -75,5 +104,20 @@ export class SessionRepoInMemory implements SessionRepo {
         this.memory.delete(s.id);
       }
     }
+  }
+
+  async findPaginated(
+    page: number,
+    perPage: number,
+  ): Promise<Pagination<Session>> {
+    const sessions = [...this.memory.values()].sort((a, b) => {
+      return a.createdAt < b.createdAt ? 1 : -1;
+    });
+    return Pagination.from({
+      perPage,
+      totalItems: sessions.length,
+      currentPage: page,
+      data: sessions,
+    });
   }
 }

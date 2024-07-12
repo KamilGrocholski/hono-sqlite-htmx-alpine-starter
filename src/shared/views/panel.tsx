@@ -4,7 +4,7 @@ import { Document } from "./document";
 export function PanelPage({ user }: { user: { email: string; role: string } }) {
   return (
     <Document>
-      <div class="top-0 sticky">
+      <div class="top-0 sticky z-50">
         <Navbar user={user} />
       </div>
 

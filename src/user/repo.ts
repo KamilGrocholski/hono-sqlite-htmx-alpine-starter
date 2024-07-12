@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 
+import { Pagination } from "@/utils";
 import { User, UserRole } from "./types";
-import { Pagination } from "@/utils/pagination";
 
 export interface UserRepo {
   create(email: string, password: string, role: UserRole): Promise<void>;
@@ -55,16 +55,18 @@ export class UserRepoSqlite implements UserRepo {
       .query("SELECT * FROM user ORDER BY createdAt LIMIT ? OFFSET ?")
       .as(User)
       .all(limit, offset);
+    users.forEach((u) => {
+      u.createdAt = new Date(u.createdAt);
+      u.updatedAt = new Date(u.updatedAt);
+    });
     const count = this.db
       .query("SELECT COUNT(*) as totalUsers  FROM user")
       .get() as {
       totalUsers: number;
     };
-    const totalPages = Math.ceil(count.totalUsers / perPage);
-
     return Pagination.from({
       perPage,
-      totalItems: totalPages,
+      totalItems: count.totalUsers,
       currentPage: page,
       data: users,
     });
@@ -109,7 +111,7 @@ export class UserRepoInMemory implements UserRepo {
     perPage: number,
   ): Promise<Pagination<User>> {
     const users = [...this.memory.values()].sort((a, b) => {
-      return a.createdAt > b.createdAt ? 1 : -1;
+      return a.createdAt < b.createdAt ? 1 : -1;
     });
     return Pagination.from({
       perPage,
