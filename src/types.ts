@@ -1,7 +1,10 @@
 import { JwtPayload } from "@/jwt";
 
-export type AppContext = {
-  Variables: {
-    jwtPayload: JwtPayload;
-  };
+export type AppContextEnv = {
+  Variables: Variables;
+};
+
+type Variables = {
+  jwtPayload: JwtPayload;
+  isHtmxRequest: boolean;
 };

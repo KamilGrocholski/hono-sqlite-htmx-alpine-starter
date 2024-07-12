@@ -1,7 +1,7 @@
 import { MiddlewareHandler } from "hono";
+import { JwtTokenExpired } from "hono/utils/jwt/types";
 
 import { JwtService } from "./service";
-import { JwtTokenExpired } from "hono/utils/jwt/types";
 
 export function jwtMiddleware(jwtService: JwtService): MiddlewareHandler {
   return async function (c, next) {

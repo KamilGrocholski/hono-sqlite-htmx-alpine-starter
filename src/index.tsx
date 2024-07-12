@@ -31,7 +31,7 @@ import {
   UsersTableTryAgain,
 } from "@/shared";
 import { env } from "@/env";
-import { AppContext } from "@/types";
+import { AppContextEnv } from "@/types";
 import { PublicError } from "@/errors";
 
 const db = connectDB();
@@ -49,7 +49,7 @@ export const authService = new AuthService(
   jwtService,
 );
 
-const app = new Hono<AppContext>();
+const app = new Hono<AppContextEnv>();
 
 if (env.NODE_ENV === "development") {
   app.use(logger());
@@ -57,6 +57,11 @@ if (env.NODE_ENV === "development") {
 
 app.use("*", secureHeaders());
 
+app.use((c, next) => {
+  const isHtmxRequest = c.req.header("HX-Request") === "true";
+  c.set("isHtmxRequest", isHtmxRequest);
+  return next();
+});
 app.use(jwtMiddleware(jwtService));
 
 app.notFound(async (c) => c.html(<NotFoundPage />));
@@ -84,7 +89,7 @@ app.get("/500", async (c) => {
 
 app.route("", createAuthApp(authService, jwtService));
 
-const panelApp = new Hono<AppContext>();
+const panelApp = new Hono<AppContextEnv>();
 panelApp.use(authOnlyMiddleware(authService));
 panelApp.get("/", async (c) => {
   const { userId } = c.get("jwtPayload");
@@ -95,7 +100,7 @@ panelApp.get("/", async (c) => {
 });
 app.route("/panel", panelApp);
 
-const adminApp = new Hono<AppContext>();
+const adminApp = new Hono<AppContextEnv>();
 adminApp.use(authOnlyMiddleware(authService), adminOnlyMiddleware(authService));
 
 adminApp.get("/", async (c) => {

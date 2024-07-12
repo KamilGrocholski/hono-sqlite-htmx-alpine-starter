@@ -102,8 +102,8 @@ export function UsersTable({
 }) {
   return (
     <div id="users-table" class="flex flex-col items-center gap-5">
-      <div class="overflow-x-auto">
-        <table class="table">
+      <div class="overflow-x-auto max-w-xs md:max-w-lg lg:max-w-full">
+        <table class="table table-pin-rows table-pin-cols">
           <thead>
             <tr>
               <th></th>
@@ -191,8 +191,8 @@ export function SessionsTable({
 }) {
   return (
     <div id="sessions-table" class="flex flex-col items-center gap-5">
-      <div class="overflow-x-auto">
-        <table class="table">
+      <div class="overflow-x-auto max-w-xs md:max-w-lg lg:max-w-full">
+        <table class="table table-pin-rows table-pin-cols">
           <thead>
             <tr>
               <th></th>

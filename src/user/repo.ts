@@ -80,6 +80,10 @@ export class UserRepoInMemory implements UserRepo {
   ) {}
 
   async create(email: string, password: string, role: UserRole): Promise<void> {
+    const foundUser = await this.findByEmail(email);
+    if (foundUser) {
+      throw new Error("field e-mail unique error");
+    }
     const now = new Date();
     const user: User = {
       id: this.generateId(),

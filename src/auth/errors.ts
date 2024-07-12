@@ -7,6 +7,7 @@ export class AuthPublicError extends PublicError {
 
   constructor(message?: string, options?: ErrorOptions) {
     super(message, options);
+    this.name = "AuthPublicError";
   }
 
   static isExact(err: unknown): err is AuthPublicError {
