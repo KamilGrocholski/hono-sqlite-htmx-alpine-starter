@@ -5,7 +5,7 @@ import { SessionRepo, SessionRepoInMemory } from "@/session";
 import { JwtService, jwtMiddleware } from "@/jwt";
 import { AuthService } from "./service";
 import { Hono } from "hono";
-import { AppContext } from "@/types";
+import { AppContextEnv } from "@/types";
 import { createAuthApp } from "./app";
 
 describe("Auth app", async () => {
@@ -13,7 +13,7 @@ describe("Auth app", async () => {
   let sessionRepo: SessionRepo;
   let jwtService: JwtService;
   let authService: AuthService;
-  let authApp: Hono<AppContext>;
+  let authApp: Hono<AppContextEnv>;
 
   function idGenerator() {
     let curr = 1;
@@ -21,7 +21,13 @@ describe("Auth app", async () => {
   }
 
   beforeEach(() => {
-    jwtService = new JwtService("jwt", 15, "secret");
+    jwtService = new JwtService(
+      function generateJwtExpiresAt() {
+        return Math.floor((Date.now() / 1000) * 60 * 15);
+      },
+      "jwt",
+      "secret",
+    );
     userRepo = new UserRepoInMemory(idGenerator(), new Map());
     sessionRepo = new SessionRepoInMemory(idGenerator(), new Map());
     authService = new AuthService(

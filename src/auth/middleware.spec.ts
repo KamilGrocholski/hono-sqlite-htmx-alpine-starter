@@ -67,7 +67,13 @@ describe("Auth middlewares", async () => {
         [userUserSession.id, userUserSession],
       ]),
     );
-    jwtService = new JwtService("jwt", 15, "secret");
+    jwtService = new JwtService(
+      function generateJwtExpiresAt() {
+        return Math.floor((Date.now() / 1000) * 60 * 15);
+      },
+      "jwt",
+      "secret",
+    );
     authService = new AuthService(
       () => new Date(Date.now() + 100_000),
       sessionRepo,

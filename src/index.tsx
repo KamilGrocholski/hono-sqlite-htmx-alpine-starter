@@ -41,9 +41,17 @@ const sessionRepo = new SessionRepoSqlite(db);
 
 const sessionService = new SessionService(sessionRepo);
 const userService = new UserService(userRepo);
-const jwtService = new JwtService("jwt", env.JWT_EXP_MINUTES, env.JWT_SECRET);
+const jwtService = new JwtService(
+  function generateJwtExpiresAt() {
+    return Math.floor((Date.now() / 1000) * 60 * env.JWT_EXP_MINUTES);
+  },
+  "jwt",
+  env.JWT_SECRET,
+);
 export const authService = new AuthService(
-  () => new Date(Date.now() + 1000 * 60 * env.SESSION_EXP_TIME_MINUTES),
+  function generateSessionExpiresAt() {
+    return new Date(Date.now() + 1000 * 60 * env.SESSION_EXP_TIME_MINUTES);
+  },
   sessionRepo,
   userRepo,
   jwtService,

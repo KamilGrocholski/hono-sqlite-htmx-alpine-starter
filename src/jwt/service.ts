@@ -4,7 +4,7 @@ import { sign, verify } from "hono/jwt";
 
 import { User } from "@/user";
 import { Session } from "@/session";
-import { AppContext } from "@/types";
+import { AppContextEnv } from "@/types";
 
 export type JwtPayload = {
   userId: User["id"];
@@ -13,8 +13,8 @@ export type JwtPayload = {
 
 export class JwtService {
   constructor(
+    private generateExpiresAt: () => number,
     private cookieName: string,
-    private jwtExpMinutes: number,
     private secret: string,
   ) {}
 
@@ -23,7 +23,7 @@ export class JwtService {
       {
         userId: payload.userId,
         sessionId: payload.sessionId,
-        exp: Math.floor((Date.now() / 1000) * 60 * this.jwtExpMinutes),
+        exp: this.generateExpiresAt(),
       },
       this.secret,
     );
@@ -33,18 +33,18 @@ export class JwtService {
     return (await verify(token, this.secret)) as JwtPayload;
   }
 
-  setCookie(c: Context<AppContext>, token: string): void {
+  setCookie(c: Context<AppContextEnv>, token: string): void {
     setCookie(c, this.cookieName, token, {
       sameSite: "Lax",
       httpOnly: true,
     });
   }
 
-  deleteCookie(c: Context<AppContext>): string | undefined {
+  deleteCookie(c: Context<AppContextEnv>): string | undefined {
     return deleteCookie(c, this.cookieName);
   }
 
-  getCookie(c: Context<AppContext>): string | undefined {
+  getCookie(c: Context<AppContextEnv>): string | undefined {
     return getCookie(c, this.cookieName);
   }
 }

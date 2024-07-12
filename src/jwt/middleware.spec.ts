@@ -10,7 +10,13 @@ describe("Jwt middleware", async () => {
   let jwtService: JwtService;
 
   beforeEach(() => {
-    jwtService = new JwtService("jwt", 15, "secret");
+    jwtService = new JwtService(
+      function generateJwtExpiresAt() {
+        return Math.floor((Date.now() / 1000) * 60 * 15);
+      },
+      "jwt",
+      "secret",
+    );
     app = new Hono();
     app.use(jwtMiddleware(jwtService));
   });
